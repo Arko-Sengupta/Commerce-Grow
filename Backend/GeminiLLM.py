@@ -37,7 +37,7 @@ class GeminiLLM:
                    15. **Weight**: Ensure numeric values followed by "g" (e.g., "194 g").
                    16. **Product URL**: Ensure it remains unchanged.
                    17. **Long Descriptions**: Compress lengthy descriptions into shorter summaries while retaining key details (e.g., camera features → "12MP dual camera with Night Mode, HDR, and 4K video support").
-                   18. **Any Missing Values**: Replace `None` with `null`.
+                   18. **Boolean Standardization**: Convert all `0/1`, `True/False` and `"Yes"/"No"` values to `"Yes"` and `"No"`.
                    
                    Return the standardized data in JSON format, ensuring proper key-value pairs and no additional text.
                    """
@@ -66,6 +66,8 @@ class GeminiLLM:
     def run(self, df: pd.DataFrame) -> pd.DataFrame:
         try:
             for i in range(0, len(df)):
+                
+                logging.info(f"Standardizing the Data at Row {i}")
                 
                 row_n = df.iloc[i].to_json()
                 row_n = self.GeminiFlash(row_n=row_n)

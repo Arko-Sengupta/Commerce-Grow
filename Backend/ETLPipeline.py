@@ -106,8 +106,11 @@ class ETLPipeline:
     def ProductURLs(self, df: pd.DataFrame):
         try:
             product_urls = []
+            row_count = 1
             
             for mobile, color, storage in zip(df['Mobile'], df['Colors'], df['Storage']):
+                
+                logging.info(f"Searching URL for Smartphone at Row {row_count}")
                 
                 search_string = self.search_string(mobile, color, storage)
                 url = f"https://www.flipkart.com/search?q={mobile.replace(" ", "%20")}"
@@ -126,6 +129,7 @@ class ETLPipeline:
                     if search_string in p_url:
                         product_url = "https://www.flipkart.com" + p_url
                 
+                row_count += 1
                 product_urls.append(product_url)
             return product_urls
         except Exception as e:
@@ -152,11 +156,14 @@ class ETLPipeline:
     def run(self, df: pd.DataFrame):
         try:
             df[self.Additional_Columns] = None
+            product_count = 1
             
             product_urls = self.ProductURLs(df)
             df["Product URL"] = product_urls
             
             for url in product_urls:
+                logging.info(f"Scraping URL for Smartphone at Row {product_count}")
+                
                 if url is not None:                    
                     response = requests.get(url)
                     
@@ -184,6 +191,8 @@ class ETLPipeline:
                         data = {k: v for k, v in data.items() if k not in delete_keys}
                     else:
                         data = {}
+                        
+                    product_count += 1
                 
                 df = self.AddToDataFrame(url=url, df=df, data=data)
             return df
